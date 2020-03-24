@@ -19,7 +19,7 @@ class PlayerWithControls extends StatelessWidget {
         width: MediaQuery.of(context).size.width,
         child: AspectRatio(
           aspectRatio:
-              chewieController.aspectRatio ?? _calculateAspectRatio(context),
+              chewieController.aspectRatio ?? _calculateAspectRatioParent(context),
           child: _buildPlayerWithControls(chewieController, context),
         ),
       ),
@@ -30,6 +30,7 @@ class PlayerWithControls extends StatelessWidget {
       ChewieController chewieController, BuildContext context) {
     return Container(
       child: Stack(
+        overflow: Overflow.visible,
         children: <Widget>[
           chewieController.placeholder ?? Container(),
           Center(
@@ -69,6 +70,15 @@ class PlayerWithControls extends StatelessWidget {
     final size = MediaQuery.of(context).size;
     final width = size.width;
     final height = size.height;
+
+    return width > height ? width / height : height / width;
+  }
+
+
+  double _calculateAspectRatioParent(BuildContext context) {
+    final size = MediaQuery.of(context).size;
+    final width = size.width;
+    final height = size.height + 10;
 
     return width > height ? width / height : height / width;
   }

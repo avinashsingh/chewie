@@ -58,11 +58,14 @@ class _VideoProgressBarState extends State<MaterialVideoProgressBar> {
       controller.seekTo(position);
     }
 
+    double height = MediaQuery.of(context).size.height;
+    double width2 = MediaQuery.of(context).size.width;
+
     return GestureDetector(
       child: Center(
         child: Container(
-          height: MediaQuery.of(context).size.height / 2,
-          width: MediaQuery.of(context).size.width,
+          height: height,
+          width: width2,
           color: Colors.transparent,
           child: CustomPaint(
             painter: _ProgressBarPainter(
@@ -71,6 +74,7 @@ class _VideoProgressBarState extends State<MaterialVideoProgressBar> {
             ),
           ),
         ),
+
       ),
       onHorizontalDragStart: (DragStartDetails details) {
         if (!controller.value.initialized) {
@@ -127,7 +131,7 @@ class _ProgressBarPainter extends CustomPainter {
 
   @override
   void paint(Canvas canvas, Size size) {
-    final height = 2.0;
+    final height = 5.0;
 
     canvas.drawRRect(
       RRect.fromRectAndRadius(
@@ -172,7 +176,7 @@ class _ProgressBarPainter extends CustomPainter {
     );
     canvas.drawCircle(
       Offset(playedPart, size.height / 2 + height / 2),
-      height * 3,
+      height * 2,
       colors.handlePaint,
     );
   }
