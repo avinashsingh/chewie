@@ -33,6 +33,7 @@ class _VideoProgressBarState extends State<MaterialVideoProgressBar> {
 
   VoidCallback listener;
   bool _controllerWasPlaying = false;
+  bool dragging = false;
 
   VideoPlayerController get controller => widget.controller;
 
@@ -49,6 +50,12 @@ class _VideoProgressBarState extends State<MaterialVideoProgressBar> {
   }
 
   @override
+  void dispose () {
+    controller.removeListener(listener);
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     void seekToRelativePosition(Offset globalPosition) {
       final box = context.findRenderObject() as RenderBox;
@@ -62,18 +69,27 @@ class _VideoProgressBarState extends State<MaterialVideoProgressBar> {
     double width2 = MediaQuery.of(context).size.width;
 
     return GestureDetector(
-      child: Center(
+      child: AbsorbPointer(
         child: Container(
-          height: height,
-          width: width2,
-          color: Colors.transparent,
-          child: CustomPaint(
-            painter: _ProgressBarPainter(
-              controller.value,
-              widget.colors,
+            alignment: Alignment.topCenter,
+            decoration: BoxDecoration(
+//              border: Border.all(),
+              color: Colors.transparent,
+            ),
+
+            padding: EdgeInsets.only(bottom: height - 5),
+            child: Container(
+              width: double.infinity,
+              child: CustomPaint(
+                painter: _ProgressBarPainter(
+                  controller.value,
+                  widget.colors,
+                  dragging ? 3.0 : 2.0
+                ),
+              ),
             ),
           ),
-        ),
+
 
       ),
       onHorizontalDragStart: (DragStartDetails details) {
@@ -85,6 +101,9 @@ class _VideoProgressBarState extends State<MaterialVideoProgressBar> {
           controller.pause();
         }
 
+        setState(() {
+          dragging = true;
+        });
         if (widget.onDragStart != null) {
           widget.onDragStart();
         }
@@ -104,11 +123,19 @@ class _VideoProgressBarState extends State<MaterialVideoProgressBar> {
           controller.play();
         }
 
+        setState(() {
+          dragging = false;
+        });
         if (widget.onDragEnd != null) {
           widget.onDragEnd();
         }
       },
+      onTap: () {
+        print("************** YES YES TAPPED");
+      },
       onTapDown: (TapDownDetails details) {
+
+        print("***>>>>>>>>> TAP DOWN HIT");
         if (!controller.value.initialized) {
           return;
         }
@@ -119,7 +146,8 @@ class _VideoProgressBarState extends State<MaterialVideoProgressBar> {
 }
 
 class _ProgressBarPainter extends CustomPainter {
-  _ProgressBarPainter(this.value, this.colors);
+  double height = 2.0;
+  _ProgressBarPainter(this.value, this.colors, this.height);
 
   VideoPlayerValue value;
   ChewieProgressColors colors;
@@ -131,15 +159,14 @@ class _ProgressBarPainter extends CustomPainter {
 
   @override
   void paint(Canvas canvas, Size size) {
-    final height = 5.0;
-
+//height = 5;
     canvas.drawRRect(
       RRect.fromRectAndRadius(
         Rect.fromPoints(
           Offset(0.0, size.height / 2),
           Offset(size.width, size.height / 2 + height),
         ),
-        Radius.circular(4.0),
+        Radius.circular(4.8),
       ),
       colors.backgroundPaint,
     );
@@ -159,7 +186,7 @@ class _ProgressBarPainter extends CustomPainter {
             Offset(start, size.height / 2),
             Offset(end, size.height / 2 + height),
           ),
-          Radius.circular(4.0),
+          Radius.circular(4.8),
         ),
         colors.bufferedPaint,
       );
@@ -170,13 +197,13 @@ class _ProgressBarPainter extends CustomPainter {
           Offset(0.0, size.height / 2),
           Offset(playedPart, size.height / 2 + height),
         ),
-        Radius.circular(4.0),
+        Radius.circular(4.8),
       ),
       colors.playedPaint,
     );
     canvas.drawCircle(
       Offset(playedPart, size.height / 2 + height / 2),
-      height * 2,
+      height * 2.4,
       colors.handlePaint,
     );
   }
